@@ -1,0 +1,20 @@
+[run]
+branch = True
+command_line = -m pytest
+source =
+    fastapi_login
+    test
+omit = venv/*
+dynamic_context = test_function
+
+[report]
+sort = Cover
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+
+[html]
+show_contexts = True

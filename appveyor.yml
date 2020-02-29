@@ -24,3 +24,11 @@ install:
 
 test_script:
   - "poetry run pytest --doctest-modules"
+  - "poetry run coverage run"
+  - "poetry run coverage report"
+
+after_test:
+  - ps: |
+      $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
+      Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
+      bash codecov.sh -v
