@@ -2,6 +2,7 @@
     "editor.formatOnSave": true,
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
+    "python.envFile": "${workspaceFolder}/.vscode/python.env",
     "python.formatting.provider": "black",
     "python.linting.pydocstyleEnabled": true,
     "python.linting.pylintEnabled": true,
