@@ -33,6 +33,10 @@ def test_create_token_with_invalid_payload():
     with pytest.raises(session.TokenError):
         _ = token.decode()
 
+    token = session.Token(access_token=b"invalid")
+    with pytest.raises(session.TokenError):
+        _ = token.decode()
+
 
 def test_create_token_with_empty_payload():
     """Test to decode an empty payload."""
