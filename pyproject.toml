@@ -5,7 +5,7 @@ description = ""
 authors = ["Sascha Dorenbeck <parsd@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 email-validator = "^1.0.5"
 fastapi = "^0.50.0"
 passlib = {version = "^1.7.2", extras = ["bcrypt"]}
