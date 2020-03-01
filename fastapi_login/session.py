@@ -1,6 +1,8 @@
 """User session module."""
 
 from __future__ import annotations
+from abc import abstractmethod
+from typing import Optional, Protocol, TypeVar
 
 import base64
 import json
@@ -68,3 +70,53 @@ class Token(BaseModel):
             return json.loads(base64.b64decode(payload, validate=validate))
         except Exception as ex:
             raise TokenError(ex.args) from ex
+
+
+UT = TypeVar("UT")
+
+
+class SessionStore(Protocol[UT]):
+    """Generic protocol for handling and storing sessions.
+
+    Supports objects and modules implementing this session protocol via structural
+    subtyping (i.e. the objects/modules do not need to derive from this protocol).
+
+    :tparam UT: Type of user to be stored in the store.
+    """
+
+    @abstractmethod
+    def __contains__(self, access_token: str) -> bool:
+        """Test whether the access_token is in the session store.
+
+        :param access_token: Token to be looked for.
+        :returns: `True` if access_token exists; `False` if not.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def new(self, access_token: str, user: UT) -> None:
+        """Create a new user session.
+
+        Precondition: `access_token not in self`
+
+        :param access_token: Token identifying the session to be added.
+        :param user: User to create a new session for.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def remove(self, access_token: str) -> None:
+        """Remove the user session with the given access_token.
+
+        :param access_token: Token identifying the session to be removed.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get(self, access_token: str) -> Optional[UT]:
+        """Try to get the user of type `UT` for the given accss_token.
+
+        :param access_token: Token identifying the session to be retrieved.
+        :returns: User of type `UT` if session exists; `None` otherwise.
+        """
+        raise NotImplementedError()
