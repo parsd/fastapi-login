@@ -24,11 +24,12 @@ install:
 
 test_script:
   - "poetry run pytest -vv --doctest-modules"
+
+after_test:
   - "poetry run coverage run"
   - "poetry run coverage report"
   - "poetry run coverage xml"
-
-after_test:
+  - "SET PATH=C:\\msys64\\usr\\bin;%PATH%"
   - "bash <(curl -s https://codecov.io/bash)"
   # - ps: |
   #     $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
