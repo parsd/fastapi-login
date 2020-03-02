@@ -17,7 +17,7 @@ install:
   - "poetry run python -m pip install -U pip"
 
   # Install dependencies
-  - "poetry install -v"
+  - "poetry install --no-root -v"
 
 build: false
 

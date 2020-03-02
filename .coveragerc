@@ -1,6 +1,6 @@
 [run]
 branch = True
-command_line = -m pytest
+command_line = -m pytest --doctest-modules
 source =
     fastapi_login
     test

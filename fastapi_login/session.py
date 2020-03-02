@@ -85,38 +85,38 @@ class SessionStore(Protocol[UT]):
     """
 
     @abstractmethod
-    def __contains__(self, access_token: str) -> bool:
-        """Test whether the access_token is in the session store.
+    def __contains__(self, session_id: str) -> bool:
+        """Test whether the session_id is in the session store.
 
-        :param access_token: Token to be looked for.
-        :returns: `True` if access_token exists; `False` if not.
+        :param session_id: Identifier to be looked for.
+        :returns: `True` if session_id exists; `False` if not.
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def new(self, access_token: str, user: UT) -> None:
+    def new(self, session_id: str, user: UT) -> None:
         """Create a new user session.
 
-        Precondition: `access_token not in self`
+        Precondition: `session_id not in self`
 
-        :param access_token: Token identifying the session to be added.
+        :param session_id: Token identifying the session to be added.
         :param user: User to create a new session for.
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def remove(self, access_token: str) -> None:
-        """Remove the user session with the given access_token.
+    def remove(self, session_id: str) -> None:
+        """Remove the user session with the given session_id.
 
-        :param access_token: Token identifying the session to be removed.
+        :param session_id: Token identifying the session to be removed.
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def get(self, access_token: str) -> Optional[UT]:
-        """Try to get the user of type `UT` for the given accss_token.
+    def get(self, session_id: str) -> Optional[UT]:
+        """Try to get the user of type `UT` for the given session_id.
 
-        :param access_token: Token identifying the session to be retrieved.
+        :param session_id: Token identifying the session to be retrieved.
         :returns: User of type `UT` if session exists; `None` otherwise.
         """
         raise NotImplementedError()
