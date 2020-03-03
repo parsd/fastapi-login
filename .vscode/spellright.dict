@@ -4,3 +4,4 @@ noqa
 typ
 pylint
 url
+pydantic

@@ -1,7 +1,7 @@
 """Users routes module."""
 
 from http import HTTPStatus
-from typing import Callable, Generator, Generic
+from typing import Callable, Generator, Generic, Type
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -17,6 +17,7 @@ class Users(Generic[session.UT]):
         self,
         store: session.SessionStore,
         authenticate: Callable[[str, str], session.UT],
+        user_type: Type[session.UT],
         *,
         token_url: str = "login",
     ) -> None:
@@ -25,6 +26,8 @@ class Users(Generic[session.UT]):
         :param store: Repository storing users by their session id.
         :param authenticate: Callable that takes first the user name and then the password. Returns a user
             on success. Raises an error derived from `Exception` on error.
+        :param user_type: Type of the user object (inherits `pydantic.BaseType`)
+        :param token_url: Relative path to the endpoint that creates the session token.
         """
         self._router = APIRouter()
         self._store = store
@@ -82,7 +85,7 @@ class Users(Generic[session.UT]):
 
         self._login = login
 
-        @self.router.get("/me", response_model=session.UT)
+        @self.router.get("/me", response_model=user_type)
         def me(
             current_user: session.UT = Depends(self.get_current_user),
         ) -> session.UT:  # noqa: D301
