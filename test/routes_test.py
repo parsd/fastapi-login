@@ -34,9 +34,15 @@ class LoggedOutApp:  # noqa: D101
     authenticate: Callable[[str, str], mocks.User]
 
 
+@dataclass
+class LoggedInApp(LoggedOutApp):  # noqa: D101
+    access_token: str
+    default_headers: MutableMapping[str, str]
+
+
 @pytest.fixture
 def logged_out_app() -> Generator[LoggedOutApp, None, None]:
-    """Create the test web app for `fastapi_login.UsersRoutes."""
+    """Create the logged out test web app for `fastapi_login.UsersRoutes."""
 
     def auth(username: str, password: str) -> mocks.User:
         if username != USERNAME or password != PASSWORD:
@@ -52,7 +58,24 @@ def logged_out_app() -> Generator[LoggedOutApp, None, None]:
     yield LoggedOutApp(client=TestClient(app), store=store, authenticate=authenticate)
 
 
-def test_valid_login(logged_out_app: LoggedOutApp):
+@pytest.fixture
+def logged_in_app(logged_out_app: LoggedOutApp) -> LoggedInApp:
+    """Create the logged in test web app for `fastapi_login.UsersRoutes."""
+    response: Response = logged_out_app.client.post(
+        "/login", data={"username": USERNAME, "password": PASSWORD}
+    )
+    assert response.status_code == HTTPStatus.CREATED
+    access_token = response.json()["access_token"]
+    return LoggedInApp(
+        client=logged_out_app.client,
+        store=logged_out_app.store,
+        authenticate=logged_out_app.authenticate,
+        access_token=access_token,
+        default_headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+
+def test_valid_login(logged_out_app: LoggedOutApp) -> None:
     """Test a valid login request."""
     response = logged_out_app.client.post(
         "/login", data={"username": USERNAME, "password": PASSWORD}
@@ -69,7 +92,7 @@ def test_valid_login(logged_out_app: LoggedOutApp):
     assert_that(session_token).is_equal_to(reference_token)
 
 
-def test_invalid_login(logged_out_app: LoggedOutApp):
+def test_invalid_login(logged_out_app: LoggedOutApp) -> None:
     """Test an invalid login request."""
     response = logged_out_app.client.post(
         "/login", data={"username": "not@present.net", "password": "..."}
@@ -81,3 +104,24 @@ def test_invalid_login(logged_out_app: LoggedOutApp):
 
     result = response.json()
     assert_that(result).has_detail([ERROR_TEXT])
+
+
+def test_valid_logout(logged_in_app: LoggedInApp) -> None:
+    """Test log-out of a logged-in session."""
+    # pylint: disable=no-member
+    response = logged_in_app.client.delete(
+        "/logout", headers=logged_in_app.default_headers
+    )
+
+    assert_that(response.status_code).is_equal_to(HTTPStatus.NO_CONTENT)
+    assert_that(logged_in_app.store).is_empty()
+
+
+def test_invalid_logout(logged_in_app: LoggedInApp) -> None:
+    """Test a query with an invalid sessions."""
+    # pylint: disable=no-member
+    headers = {"Authorization": "Bearer dummy"}
+    response = logged_in_app.client.delete("/logout", headers=headers)
+
+    assert_that(response.status_code).is_equal_to(HTTPStatus.BAD_REQUEST)
+    assert_that(logged_in_app.store).is_length(1)
