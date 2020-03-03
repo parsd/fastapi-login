@@ -106,6 +106,24 @@ def test_invalid_login(logged_out_app: LoggedOutApp) -> None:
     assert_that(result).has_detail([ERROR_TEXT])
 
 
+def test_valid_user_query(logged_in_app: LoggedInApp):
+    """Test that currently logged in user can be queried."""
+    # pylint: disable=no-member
+    response = logged_in_app.client.get("/me", headers=logged_in_app.default_headers)
+
+    assert_that(response.json()).has_name(USERNAME)
+
+
+def test_invalid_user_query(logged_out_app: LoggedOutApp):
+    """Test a query with an invalid sessions."""
+    headers = {"Authorization": "Bearer dummy"}
+    response = logged_out_app.client.get("/me", headers=headers)
+
+    assert_that(response.status_code).is_equal_to(HTTPStatus.UNAUTHORIZED)
+    result = response.json()
+    assert_that(result).contains_key("detail")
+
+
 def test_valid_logout(logged_in_app: LoggedInApp) -> None:
     """Test log-out of a logged-in session."""
     # pylint: disable=no-member

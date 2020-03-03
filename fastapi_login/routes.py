@@ -32,6 +32,30 @@ class Users(Generic[session.UT]):
         self._unique_ids = self._make_unique_id()
         self._oauth2_scheme = OAuth2PasswordBearer(token_url)
 
+        def get_current_user(token: str = Depends(self._oauth2_scheme)):
+            """Get the current user from the bearer token.
+
+            :param token: The session token.
+            :returns: The user information of the current user.
+            :raises HTTPException: if the `token` is not valid.
+            """
+            try:
+                session_id = session.Token(access_token=token).decode()["session"]
+                user = self._store.get(session_id)
+            except Exception:
+                user = None
+
+            if user is None:
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED,
+                    detail="Invalid authentication credentials",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
+            return user
+
+        self.get_current_user = get_current_user
+
         # routes are defined here as FastAPI's dependency system works at function
         # definition time and self is needed for dynamic token_url
         @self.router.post(
@@ -57,6 +81,20 @@ class Users(Generic[session.UT]):
                 raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=err.args)
 
         self._login = login
+
+        @self.router.get("/me", response_model=session.UT)
+        def me(
+            current_user: session.UT = Depends(self.get_current_user),
+        ) -> session.UT:  # noqa: D301
+            """User information based on the given token.
+            \f
+            :param current_user: User of the given token.
+            :returns: User information about the logged in user.
+            :raises: HTTPException: if token is invalid.
+            """
+            return current_user
+
+        self._me = me
 
         @self.router.delete("/logout", status_code=HTTPStatus.NO_CONTENT)
         def logout(token: str = Depends(self._oauth2_scheme)) -> None:  # noqa: D301
