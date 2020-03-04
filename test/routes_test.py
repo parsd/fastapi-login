@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 import pytest
 from assertpy import assert_that
 from fastapi import FastAPI
-from pytest_mock import MockFixture
 from requests.models import Response
 from starlette.testclient import TestClient
 
