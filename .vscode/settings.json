@@ -17,5 +17,5 @@
     "spellright.language": [
         "en"
     ],
-    "python.pythonPath": "venv\\Scripts\\python.exe",
+    "python.pythonPath": "venv\\Scripts\\python.exe"
 }
