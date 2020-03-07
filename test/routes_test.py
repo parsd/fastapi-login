@@ -50,7 +50,7 @@ def logged_out_app() -> Generator[LoggedOutApp, None, None]:
 
     store = mocks.SessionStore()
     authenticate = MagicMock(side_effect=auth)
-    routes = fastapi_login.UsersRoutes(store, authenticate, mocks.User)
+    routes = fastapi_login.UsersRoutes(mocks.User, store, authenticate)
 
     app = FastAPI(debug=True)
     app.include_router(routes.router)

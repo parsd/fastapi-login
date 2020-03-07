@@ -15,18 +15,18 @@ class Users(Generic[session.UT]):
 
     def __init__(
         self,
+        user_type: Type[session.UT],
         store: session.SessionStore,
         authenticate: Callable[[str, str], session.UT],
-        user_type: Type[session.UT],
         *,
         token_url: str = "login",
     ) -> None:
         """Create the FastApi router with login/logout routes.
 
+        :param user_type: Type of the user object (inherits `pydantic.BaseType`)
         :param store: Repository storing users by their session id.
         :param authenticate: Callable that takes first the user name and then the password. Returns a user
             on success. Raises an error derived from `Exception` on error.
-        :param user_type: Type of the user object (inherits `pydantic.BaseType`)
         :param token_url: Relative path to the endpoint that creates the session token.
         """
         self._router = APIRouter()
