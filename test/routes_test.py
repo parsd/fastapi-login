@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Callable, Generator, MutableMapping, Protocol
+from typing import Callable, MutableMapping, Protocol
 from unittest.mock import MagicMock
 
 import pytest
@@ -40,7 +40,7 @@ class LoggedInApp(LoggedOutApp):  # noqa: D101
 
 
 @pytest.fixture
-def logged_out_app() -> Generator[LoggedOutApp, None, None]:
+def logged_out_app() -> LoggedOutApp:
     """Create the logged out test web app for `fastapi_login.UsersRoutes."""
 
     def auth(username: str, password: str) -> mocks.User:
@@ -54,7 +54,7 @@ def logged_out_app() -> Generator[LoggedOutApp, None, None]:
 
     app = FastAPI(debug=True)
     app.include_router(routes.router)
-    yield LoggedOutApp(client=TestClient(app), store=store, authenticate=authenticate)
+    return LoggedOutApp(client=TestClient(app), store=store, authenticate=authenticate)
 
 
 @pytest.fixture
