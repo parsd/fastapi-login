@@ -130,6 +130,6 @@ class Users(Generic[session.UT]):
     def _make_unique_id(self) -> Generator[str, None, None]:
         while True:
             identifier = secrets.token_hex()
-            if identifier not in self._store:
+            if not self._store.__contains__(identifier):  # also support modules
                 yield identifier
 
