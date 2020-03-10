@@ -25,8 +25,8 @@ class Users(Generic[session.UT]):
 
         :param user_type: Type of the user object (inherits `pydantic.BaseType`)
         :param store: Repository storing users by their session id.
-        :param authenticate: Callable that takes first the user name and then the password. Returns a user
-            on success. Raises an error derived from `Exception` on error.
+        :param authenticate: Callable that takes first the user name and then the password. Returns
+            a user on success. Raises an error derived from `Exception` on error.
         :param token_url: Relative path to the endpoint that creates the session token.
         """
         self._router = APIRouter()
@@ -132,4 +132,3 @@ class Users(Generic[session.UT]):
             identifier = secrets.token_hex()
             if not self._store.__contains__(identifier):  # also support modules
                 yield identifier
-
